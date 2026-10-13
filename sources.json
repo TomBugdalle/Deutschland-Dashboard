@@ -1,0 +1,12 @@
+[
+{"id": "cpi", "indicator": "Inflationsrate (VPI)", "publisher": "Destatis", "rhythm": "monatlich", "next": "Schnellmeldung Ende Okt.; Endergebnis Sep. Mitte Okt.", "url": "https://genesis.destatis.de/datenbank/online"},
+{"id": "alq", "indicator": "Arbeitslosenquote", "publisher": "Bundesagentur für Arbeit", "rhythm": "monatlich", "next": "Ende Okt.", "url": "https://statistik.arbeitsagentur.de/"},
+{"id": "ifo", "indicator": "ifo Geschäftsklimaindex", "publisher": "ifo Institut", "rhythm": "monatlich", "next": "26.10.2026", "url": "https://www.ifo.de/"},
+{"id": "polls", "indicator": "Sonntagsfrage (Zeitreihe)", "publisher": "Infratest dimap (API: DAWUM; Archiv: wahlrecht.de)", "rhythm": "ca. monatlich", "next": "laut Veröffentlichung", "url": "https://www.wahlrecht.de/umfragen/dimap.htm"},
+{"id": "politico", "indicator": "Poll of Polls Deutschland", "publisher": "POLITICO Europe", "rhythm": "laufend", "next": "nicht abrufbar, keine öffentliche API", "url": "https://www.politico.eu/europe-poll-of-polls/germany/"},
+{"id": "ecb", "indicator": "EZB-Leitzinsen", "publisher": "Europäische Zentralbank", "rhythm": "6-wöchentlich", "next": "29.10.2026", "url": "https://www.ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/index.en.html"},
+{"id": "fed", "indicator": "Fed-Leitzins", "publisher": "Federal Reserve", "rhythm": "ca. 8× pro Jahr", "next": "laut FOMC-Kalender", "url": "https://www.federalreserve.gov/monetarypolicy/openmarket.htm"},
+{"id": "ea", "indicator": "Inflation Euroraum", "publisher": "Eurostat", "rhythm": "monatlich", "next": "Schnellschätzung Ende Okt.", "url": "https://ec.europa.eu/eurostat"},
+{"id": "us", "indicator": "Inflation USA", "publisher": "US Bureau of Labor Statistics", "rhythm": "monatlich", "next": "laut BLS-Kalender", "url": "https://www.bls.gov/cpi/"},
+{"id": "fiscal", "indicator": "Staatsdefizit und Schulden", "publisher": "Destatis / Bundesbank", "rhythm": "vierteljährlich", "next": "laut Veröffentlichungskalender", "url": "https://www.bundesbank.de/"}
+]

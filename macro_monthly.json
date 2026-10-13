@@ -1,0 +1,14 @@
+[
+{"month": "2025-11", "label": "Nov 25", "inflation": 2.3, "unemployment": 6.1, "ifo": 88.0, "inflation_status": "", "zew_exp": 38.5, "ecb_mro": 2.15, "fed_eff": 3.88},
+{"month": "2025-12", "label": "Dez 25", "inflation": 1.8, "unemployment": 6.2, "ifo": 87.6, "inflation_status": "", "zew_exp": 45.8, "ecb_mro": 2.15, "fed_eff": 3.72},
+{"month": "2026-01", "label": "Jan 26", "inflation": 2.1, "unemployment": 6.6, "ifo": 87.6, "inflation_status": "", "zew_exp": 59.6, "ecb_mro": 2.15, "fed_eff": 3.64},
+{"month": "2026-02", "label": "Feb 26", "inflation": 1.9, "unemployment": 6.5, "ifo": 88.4, "inflation_status": "", "zew_exp": 58.3, "ecb_mro": 2.15, "fed_eff": 3.64},
+{"month": "2026-03", "label": "Mär 26", "inflation": 2.7, "unemployment": 6.4, "ifo": 86.4, "inflation_status": "", "zew_exp": -0.5, "ecb_mro": 2.15, "fed_eff": 3.64},
+{"month": "2026-04", "label": "Apr 26", "inflation": 2.9, "unemployment": 6.4, "ifo": 84.5, "inflation_status": "", "zew_exp": -17.2, "ecb_mro": 2.15, "fed_eff": 3.64},
+{"month": "2026-05", "label": "Mai 26", "inflation": 2.6, "unemployment": 6.3, "ifo": 85.0, "inflation_status": "", "zew_exp": -10.2, "ecb_mro": 2.15, "fed_eff": 3.63},
+{"month": "2026-06", "label": "Jun 26", "inflation": 2.3, "unemployment": 6.2, "ifo": 85.6, "inflation_status": "", "zew_exp": 10.5, "ecb_mro": 2.4, "fed_eff": 3.63},
+{"month": "2026-07", "label": "Jul 26", "inflation": 2.8, "unemployment": 6.4, "ifo": 86.7, "inflation_status": "", "zew_exp": 26.3, "ecb_mro": 2.4, "fed_eff": 3.63},
+{"month": "2026-08", "label": "Aug 26", "inflation": 2.9, "unemployment": 6.5, "ifo": 88.8, "inflation_status": "", "zew_exp": 34.2, "ecb_mro": 2.4, "fed_eff": 3.63},
+{"month": "2026-09", "label": "Sep 26", "inflation": 3.3, "unemployment": 6.4, "ifo": 89.9, "inflation_status": "vorläufig", "zew_exp": 34.7, "ecb_mro": 2.65, "fed_eff": 3.75},
+{"month": "2026-10", "label": "Okt 26", "inflation": null, "unemployment": null, "ifo": null, "inflation_status": "", "zew_exp": null, "ecb_mro": 2.65, "fed_eff": null}
+]

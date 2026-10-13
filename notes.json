@@ -1,0 +1,11 @@
+[
+{"id": "takeaway", "text": "Preise und Leitzinsen ziehen wieder an, die Stimmung der Unternehmen hellt sich auf, der Arbeitsmarkt bleibt schwach und das Staatsdefizit wächst. Oktoberwerte erscheinen erst Ende des Monats."},
+{"id": "period", "text": "Monatsreihen Nov 2025 bis Okt 2026 · Stand der Recherche: 13.10.2026"},
+{"id": "n_cpi", "text": "Die Septemberinflation ist eine vorläufige Schnellmeldung. Das Endergebnis kann abweichen."},
+{"id": "n_rev", "text": "Alle Reihen zeigen die zuletzt veröffentlichten, teils revidierten Werte (zum Beispiel ifo Februar 88,4 statt zuerst 88,6)."},
+{"id": "n_polls", "text": "Die Sonntagsfrage stammt von Infratest dimap. POLITICO Poll of Polls hat keine öffentliche API; dortige Werte können abweichen. Ein Strich heißt: nicht separat ausgewiesen."},
+{"id": "n_sources", "text": "Abgeglichen wurde über Pressemitteilungen der Primärquellen und Fachmedien. Einzelne Zwischenwerte (ifo, Euroraum-Inflation, EZB-Details) stammen aus Sekundärquellen wie Trading Economics und nicht aus den Originaltabellen."},
+{"id": "n_bund", "text": "Renditen: Bundesbank, Tagesrendite der jeweils jüngsten 10-jährigen Bundesanleihe (Zeitreihe BBSSY.D.REN.EUR.A630.000000WT1010.A). Die Zeitreihen-Datenbank der Bundesbank kann den jüngsten Tagen hinterherhinken; diese Tage stammen aus den täglichen Bundesbank-Veröffentlichungen derselben Reihe."},
+{"id": "n_zew", "text": "ZEW: Die Konjunkturerwartungen stammen aus den monatlichen ZEW-Veröffentlichungen. Die Reihe ist lückenlos und rechnerisch konsistent (Vormonatsänderungen passen)."},
+{"id": "n_rates", "text": "Der Hauptrefinanzierungssatz liegt 0,15 Punkte über dem Einlagesatz; die früheren Stände sind daraus abgeleitet, der aktuelle Stand ist belegt. Die Fed-Reihe ist der Monatsdurchschnitt des effektiven Satzes und deshalb träger als die Beschlüsse der Fed. Beide Reihen messen nicht exakt dasselbe."}
+]

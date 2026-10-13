@@ -1,0 +1,15 @@
+[
+{"month": "2025-10", "label": "Okt 25", "published": "2025-10-02", "cdu_csu": 26, "spd": 14, "gruene": 12, "fdp": 3, "linke": 10, "afd": 26, "bsw": 3, "sonstige": 6},
+{"month": "2025-11", "label": "Nov 25", "published": "2025-11-06", "cdu_csu": 27, "spd": 14, "gruene": 12, "fdp": 3, "linke": 10, "afd": 26, "bsw": 3, "sonstige": 5},
+{"month": "2025-12", "label": "Dez 25", "published": "2025-12-04", "cdu_csu": 27, "spd": 14, "gruene": 12, "fdp": 3, "linke": 10, "afd": 25, "bsw": 4, "sonstige": 5},
+{"month": "2026-01", "label": "Jan 26", "published": "2026-01-08", "cdu_csu": 28, "spd": 13, "gruene": 12, "fdp": 3, "linke": 10, "afd": 25, "bsw": 3, "sonstige": 6},
+{"month": "2026-02", "label": "Feb 26", "published": "2026-02-05", "cdu_csu": 26, "spd": 15, "gruene": 12, "fdp": 3, "linke": 10, "afd": 24, "bsw": 3, "sonstige": 7},
+{"month": "2026-03", "label": "Mär 26", "published": "2026-03-05", "cdu_csu": 28, "spd": 14, "gruene": 13, "fdp": null, "linke": 9, "afd": 23, "bsw": 4, "sonstige": 9},
+{"month": "2026-04", "label": "Apr 26", "published": "2026-04-01", "cdu_csu": 26, "spd": 12, "gruene": 14, "fdp": 3, "linke": 10, "afd": 25, "bsw": 3, "sonstige": 7},
+{"month": "2026-05", "label": "Mai 26", "published": "2026-05-07", "cdu_csu": 24, "spd": 12, "gruene": 15, "fdp": 4, "linke": 10, "afd": 27, "bsw": 3, "sonstige": 5},
+{"month": "2026-06", "label": "Jun 26", "published": "2026-06-03", "cdu_csu": 23, "spd": 13, "gruene": 14, "fdp": 4, "linke": 10, "afd": 27, "bsw": 3, "sonstige": 6},
+{"month": "2026-07", "label": "Jul 26", "published": "2026-07-02", "cdu_csu": 22, "spd": 12, "gruene": 15, "fdp": 4, "linke": 11, "afd": 27, "bsw": null, "sonstige": 9},
+{"month": "2026-08", "label": "Aug 26", "published": "2026-08-06", "cdu_csu": 21, "spd": 12, "gruene": 15, "fdp": 4, "linke": 11, "afd": 28, "bsw": null, "sonstige": 9},
+{"month": "2026-09", "label": "Sep 26", "published": "2026-09-03", "cdu_csu": 21, "spd": 13, "gruene": 15, "fdp": 4, "linke": 12, "afd": 27, "bsw": null, "sonstige": 8},
+{"month": "2026-10", "label": "Okt 26", "published": "2026-10-01", "cdu_csu": 20, "spd": 13, "gruene": 16, "fdp": 4, "linke": 11, "afd": 27, "bsw": null, "sonstige": 9}
+]

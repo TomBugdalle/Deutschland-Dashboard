@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deutschland Dashboard</title>
+<meta name="description" content="Wirtschaftspolitische Indikatoren, Renditen, Leitzinsen und Sonntagsfrage für Deutschland mit Quellen.">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<style>
+:root {
+  --color-bg: #f6f5f1; --color-fg: #1f1e1b; --color-fg-muted: #6b6a63; --color-panel: #ffffff;
+  --color-border-line: #e4e2da; --color-bad: #b4452f; --color-ok: #3a7d55;
+  --cds-border: #c9c6bb; --cds-text-secondary: #6b6a63; --cds-surface-popover: #ffffff;
+  --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.12);
+  --cds-chart-grid: #ebe9e1; --cds-chart-axis: #bdbab0; --cds-chart-reference: #8f8c80; --cds-skel: #efede6;
+  --ch-0: #c8553d; --ch-1: #3b6fa0; --ch-2: #3f8a63; --ch-3: #8a63a8; --ch-4: #b8851f;
+  --cds-radius: 12px; --cds-pad-xs: .375rem; --cds-pad-sm: .625rem; --cds-pad-md: .875rem; --cds-pad-lg: 1.125rem;
+  --cds-gap-xs: .25rem; --cds-gap-sm: .5rem; --cds-gap-md: .875rem; --cds-gap-lg: 1.75rem;
+  --cds-font-size-caption: .8125rem; --cds-font-size-body: .9375rem; --cds-font-size-heading: 1.0625rem; --cds-font-size-title: 1.75rem;
+  --cds-font-weight-medium: 600; --cds-dur-slow: .3s;
+  --font-anthropic-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-anthropic-serif: Georgia, "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1a1917; --color-fg: #ece9e1; --color-fg-muted: #a09d92; --color-panel: #242320;
+    --color-border-line: #36342f; --color-bad: #e07a63; --color-ok: #6fbf8e;
+    --cds-border: #4a4842; --cds-text-secondary: #a09d92; --cds-surface-popover: #2c2b27;
+    --cds-shadow-popover: 0 4px 16px rgba(0,0,0,.5);
+    --cds-chart-grid: #32302b; --cds-chart-axis: #55534b; --cds-chart-reference: #7d7a70; --cds-skel: #2e2c28;
+    --ch-0: #e8806a; --ch-1: #6ea3d6; --ch-2: #6cbc92; --ch-3: #b894d4; --ch-4: #e0b24d;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-bg); color: var(--color-fg); padding: 1rem; }
+@keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+.dash-skeleton { background: linear-gradient(90deg, var(--color-panel) 25%, var(--cds-skel) 50%, var(--color-panel) 75%); background-size: 200% 100%; animation: sk 1.4s linear infinite; border-radius: 8px; }
+@media (prefers-reduced-motion: reduce) { .dash-skeleton { animation: none; } }
+@media (max-width: 480px) { body { padding: .75rem; } }
+
+#dg { max-width: 1200px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); font-variant-numeric: tabular-nums; }
+#dg a { color: var(--color-fg); text-decoration: underline; text-decoration-color: var(--cds-border); text-underline-offset: 2px; }
+#dg a:hover { text-decoration-color: var(--color-fg); }
+#dg h1, #dg h2, #dg h3, #dg p, #dg ul { margin: 0; padding: 0; }
+#dg ul { list-style: none; }
+#dg .muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+
+/* Meldungen ganz oben */
+#dg .nb { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); }
+#dg .nb-head { display: flex; align-items: center; gap: var(--cds-gap-sm); margin-bottom: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: none; }
+#dg .nb-dot { width: .5rem; height: .5rem; border-radius: 50%; background: var(--color-bad); }
+#dg .nb-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--cds-gap-md); }
+#dg .ni { display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+#dg .ni + .ni { border-left: 1px solid var(--color-border-line); padding-left: var(--cds-gap-md); }
+@media (max-width: 760px) { #dg .ni + .ni { border-left: 0; padding-left: 0; border-top: 1px solid var(--color-border-line); padding-top: var(--cds-gap-sm); } }
+#dg .nm { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); display: flex; gap: var(--cds-gap-xs); flex-wrap: wrap; }
+#dg .nh { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); line-height: 1.3; }
+#dg .ns { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.4; }
+
+/* Kopf */
+#dg .hd { margin-top: var(--cds-gap-lg); }
+#dg h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.15; }
+#dg .tk-line { margin-top: var(--cds-gap-xs); font-size: var(--cds-font-size-body); max-width: 60rem; line-height: 1.45; }
+
+/* Kennzahlen */
+#dg .kp { margin-top: var(--cds-gap-md); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
+#dg .kc { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-height: 7.5rem; }
+#dg .kl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dg .kv { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; }
+#dg .kd { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dg .kd.bad { color: var(--color-bad); }
+#dg .kd.ok { color: var(--color-ok); }
+
+/* Abschnitte und Karten */
+#dg .sec { margin-top: var(--cds-gap-lg); }
+#dg .sec > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin-bottom: var(--cds-gap-sm); }
+#dg .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+#dg .card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+#dg .card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); }
+#dg .cap { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.4; }
+#dg .box { position: relative; min-height: 260px; margin-top: var(--cds-gap-xs); }
+#dg .card.wide { grid-column: 1 / -1; }
+#dg .box.tall { min-height: 340px; }
+#dg .box svg { display: block; width: 100%; height: auto; overflow: visible; }
+#dg .lg { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dg .lg span { display: inline-flex; align-items: center; gap: .3rem; }
+#dg .sw { width: .6rem; height: .6rem; border-radius: 2px; display: inline-block; }
+#dg .tkx { font-size: var(--cds-font-size-caption); fill: var(--color-fg-muted); }
+#dg .endl { font-size: var(--cds-font-size-caption); font-weight: var(--cds-font-weight-medium); }
+#dg .tt { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; z-index: 5; }
+#dg .tt .t1 { color: var(--cds-text-secondary); margin-bottom: .15rem; }
+#dg .tt .tr { display: flex; align-items: center; gap: .4rem; justify-content: space-between; }
+#dg .tt .tr b { font-weight: var(--cds-font-weight-medium); margin-left: .6rem; }
+#dg .fail { min-height: 260px; display: flex; align-items: center; justify-content: center; gap: .375rem; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+#dg .fail i { width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); display: inline-block; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+
+/* Kennzahlen-Listen */
+#dg .kf { display: flex; flex-direction: column; }
+#dg .kf li { padding: var(--cds-pad-sm) 0; border-top: 1px solid var(--color-border-line); display: flex; flex-direction: column; gap: .15rem; }
+#dg .kf li:first-child { border-top: 0; padding-top: var(--cds-pad-xs); }
+#dg .kf .a { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dg .kf .b { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+#dg .kf .c { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+
+/* Quellen */
+#dg .src { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--cds-gap-sm) var(--cds-gap-md); }
+#dg .src li { border-top: 1px solid var(--color-border-line); padding-top: var(--cds-pad-sm); display: flex; flex-direction: column; gap: .15rem; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+#dg .src li .b { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
+#dg .notes { margin-top: var(--cds-gap-md); display: flex; flex-direction: column; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.45; max-width: 60rem; }
+#dg .pad-b { height: var(--cds-gap-lg); }
+</style>
+</head>
+<body>
+<div id="dg">
+  <section class="nb" id="meldungen" aria-label="Neueste Meldungen">
+    <div class="nb-head"><span class="nb-dot"></span><span>Die drei neuesten wirtschaftspolitischen Meldungen</span></div>
+    <div class="nb-list" id="news-list"></div>
+  </section>
+
+  <header class="hd">
+    <h1 id="titel">Deutschland Dashboard – Oktober 2026</h1>
+    <p class="tk-line" id="takeaway" data-source="notes" data-field="text" data-where="id=takeaway">—</p>
+    <p class="muted" id="periode" data-source="notes" data-field="text" data-where="id=period" style="margin-top: var(--cds-gap-xs)">—</p>
+  </header>
+
+  <section class="kp" id="kennzahlen" aria-label="Kennzahlen">
+    <div class="kc"><div class="kl">Inflationsrate</div><div class="kv" data-source="kpi" data-field="display" data-where="id=inflation">—</div><div class="kd" data-source="kpi" data-field="delta" data-where="id=inflation">—</div><div class="kd" data-source="kpi" data-field="period" data-where="id=inflation">—</div></div>
+    <div class="kc"><div class="kl">Arbeitslosenquote</div><div class="kv" data-source="kpi" data-field="display" data-where="id=unemployment">—</div><div class="kd" data-source="kpi" data-field="delta" data-where="id=unemployment">—</div><div class="kd" data-source="kpi" data-field="period" data-where="id=unemployment">—</div></div>
+    <div class="kc"><div class="kl">ifo Geschäftsklima</div><div class="kv" data-source="kpi" data-field="display" data-where="id=ifo">—</div><div class="kd" data-source="kpi" data-field="delta" data-where="id=ifo">—</div><div class="kd" data-source="kpi" data-field="period" data-where="id=ifo">—</div></div>
+    <div class="kc"><div class="kl">EZB-Hauptrefinanzierungssatz</div><div class="kv" data-source="kpi" data-field="display" data-where="id=ecb">—</div><div class="kd" data-source="kpi" data-field="delta" data-where="id=ecb">—</div><div class="kd" data-source="kpi" data-field="period" data-where="id=ecb">—</div></div>
+  </section>
+
+  <section class="sec" id="indikatoren">
+    <h2>Wirtschaftspolitische Indikatoren</h2>
+    <div class="grid">
+      <article class="card" id="c-inflation">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=inflation">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=inflation">—</div>
+        
+        <div class="box dash-skeleton" id="ch-inflation" data-source="macro_monthly"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=inflation">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=inflation">—</div>
+      </article>
+      <article class="card" id="c-unemployment">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=unemployment">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=unemployment">—</div>
+        
+        <div class="box dash-skeleton" id="ch-unemployment" data-source="macro_monthly"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=unemployment">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=unemployment">—</div>
+      </article>
+      <article class="card" id="c-ifo">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=ifo">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=ifo">—</div>
+        
+        <div class="box dash-skeleton" id="ch-ifo" data-source="macro_monthly"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=ifo">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=ifo">—</div>
+      </article>
+      <article class="card" id="c-zew_exp">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=zew_exp">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=zew_exp">—</div>
+        
+        <div class="box dash-skeleton" id="ch-zew_exp" data-source="macro_monthly"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=zew_exp">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=zew_exp">—</div>
+      </article>
+      <article class="card" id="c-bund10">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=bund10">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=bund10">—</div>
+        
+        <div class="box dash-skeleton" id="ch-bund10" data-source="bund_daily"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=bund10">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=bund10">—</div>
+      </article>
+      <article class="card" id="c-rates">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=rates">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=rates">—</div>
+        <div class="lg" id="lg-rates"></div>
+        <div class="box dash-skeleton" id="ch-rates" data-source="macro_monthly"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=rates">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=rates">—</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="sonntagsfrage">
+    <h2>Sonntagsfrage</h2>
+    <div class="grid">
+      <article class="card wide" id="c-polls">
+        <h3 data-source="chart_meta" data-field="title" data-where="id=polls">—</h3>
+        <div class="cap" data-source="chart_meta" data-field="unit" data-where="id=polls">—</div>
+        <div class="lg" id="lg-polls" data-source="polls"></div>
+        <div class="box tall dash-skeleton" id="ch-polls" data-source="polls"></div>
+        <div class="cap">Quelle: <a target="_blank" rel="noopener noreferrer" data-source="chart_meta" data-field="source" data-where="id=polls">—</a></div>
+        <div class="cap" data-source="chart_meta" data-field="note" data-where="id=polls">—</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sec" id="geld-haushalt">
+    <h2>Staatsfinanzen, Geldpolitik und Ausland</h2>
+    <div class="grid" id="kf-grid"></div>
+  </section>
+
+  <section class="sec" id="quellen">
+    <h2>Quellen für regelmäßige Aktualisierung</h2>
+    <ul class="src" id="src-list"></ul>
+    <div class="notes" id="notes-list"></div>
+  </section>
+  <p class="muted" id="hinweis">Renditen, Leitzinsen und Sonntagsfrage werden täglich automatisch aktualisiert. Inflation, Arbeitslosenquote, ifo, ZEW, Meldungen und Kennzahlen werden von Hand nachgetragen.</p>
+  <div class="pad-b"></div>
+</div>
+
+
+<script>
+/* Mini-Laufzeit: lädt data/*.json und stellt dash.data / dash.calc / dash.onData bereit */
+window.dash = (function () {
+  var ids = ['macro_monthly', 'polls', 'bund_daily', 'key_figures', 'news', 'sources', 'notes', 'chart_meta', 'meta'];
+  var st = {}, cbs = [], calcs = {}, pending = ids.length;
+  ids.forEach(function (id) { st[id] = { status: 'loading', data: null }; });
+  function data(id) {
+    var c = calcs[id];
+    if (c) {
+      var ins = c.inputs.map(function (i) { return st[i] || { status: 'error' }; });
+      if (ins.some(function (x) { return x.status === 'error'; })) return { status: 'error', data: null };
+      if (ins.some(function (x) { return x.status !== 'ok'; })) return { status: 'loading', data: null };
+      try { return { status: 'ok', data: c.fn.apply(null, ins.map(function (x) { return x.data; })) }; } catch (e) { return { status: 'error', data: null }; }
+    }
+    return st[id] || { status: 'error', data: null };
+  }
+  function fire() { cbs.forEach(function (cb) { cb(); }); }
+  function settle() { pending--; if (pending === 0) fire(); }
+  ids.forEach(function (id) {
+    fetch(id + '.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (d) { st[id] = { status: 'ok', data: d }; })
+      .catch(function () { st[id] = { status: 'error', data: null }; })
+      .then(settle);
+  });
+  var t;
+  window.addEventListener('resize', function () { clearTimeout(t); t = setTimeout(function () { if (pending === 0) fire(); }, 200); });
+  return {
+    data: data,
+    calc: function (id, def) { calcs[id] = def; },
+    onData: function (cb) { cbs.push(cb); if (pending === 0) cb(); },
+    colors: ['var(--ch-0)', 'var(--ch-1)', 'var(--ch-2)', 'var(--ch-3)', 'var(--ch-4)']
+  };
+})();
+</script>
+<script>
+/* Kennzahlen: letzter veröffentlichter Wert und Veränderung zum Vormonat */
+dash.calc('kpi', {
+  inputs: ['macro_monthly'],
+  title: 'Kennzahlen: letzter Wert',
+  description: 'Letzter veröffentlichter Monatswert je Reihe und Differenz zum Vormonat.',
+  fn: function (macro_monthly) {
+    var f = function (v, d) { return Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+    var sg = function (v, d) { var r = Math.round(v * Math.pow(10, d)) / Math.pow(10, d); return (r > 0 ? '+' : r < 0 ? '−' : '±') + f(Math.abs(r), d); };
+    var defs = [
+      ['inflation', macro_monthly, 'inflation', 1, ' %', ' Pkt.', 'bad'],
+      ['unemployment', macro_monthly, 'unemployment', 1, ' %', ' Pkt.', 'bad'],
+      ['ifo', macro_monthly, 'ifo', 1, '', ' Pkt.', 'ok'],
+      ['ecb', macro_monthly, 'ecb_mro', 2, ' %', ' Pkt.', 'neutral']
+    ];
+    return defs.map(function (d) {
+      var rows = d[1].filter(function (r) { return r[d[2]] != null && r[d[2]] !== ''; });
+      var a = rows[rows.length - 1], b = rows[rows.length - 2];
+      var diff = Math.round((a[d[2]] - b[d[2]]) * Math.pow(10, d[3])) / Math.pow(10, d[3]);
+      var tone = d[6] === 'neutral' || diff === 0 ? 'flat' : (d[6] === 'bad' ? (diff > 0 ? 'bad' : 'ok') : (diff > 0 ? 'ok' : 'bad'));
+      var status = d[0] === 'inflation' && a.inflation_status ? ' (' + a.inflation_status + ')' : '';
+      return {
+        id: d[0],
+        display: f(a[d[2]], d[3]) + d[4],
+        delta: sg(diff, d[3]) + d[5] + ' ggü. ' + b.label,
+        period: 'Stand ' + a.label + status,
+        tone: tone
+      };
+    });
+  }
+});
+
+
+(function () {
+  var root = document.getElementById('dg');
+  var D = function (id) { var d = dash.data(id); return d.status === 'ok' ? d.data : null; };
+  var fmtN = function (v, d) { return Number(v).toLocaleString('de-DE', { minimumFractionDigits: d, maximumFractionDigits: d }); };
+  var safe = function (u) { return /^https?:\/\//.test(u || '') ? u : null; };
+  var enc = function (v) { return encodeURIComponent(String(v)); };
+  function mk(el, src, field, id, text) {
+    el.setAttribute('data-source', src);
+    el.setAttribute('data-field', field);
+    el.setAttribute('data-where', 'id=' + enc(id));
+    el.textContent = text == null ? '' : String(text);
+  }
+  function el(tag, cls, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+
+  var PARTIES = [
+    ['afd', 'AfD', '#1a9fdb'],
+    ['cdu_csu', 'CDU/CSU', '#6b7280'],
+    ['gruene', 'Grüne', '#46962b'],
+    ['spd', 'SPD', '#e3000f'],
+    ['linke', 'Linke', '#be3075'],
+    ['fdp', 'FDP', '#e0a800'],
+    ['bsw', 'BSW', '#7a1f4e']
+  ];
+
+  /* Generisches Liniendiagramm mit Tooltip */
+  function drawLine(host, cfg) {
+    host.innerHTML = '';
+    var W = Math.max(host.clientWidth, 260), H = cfg.h || 260;
+    var svg = d3.select(host).append('svg').attr('width', '100%').attr('viewBox', '0 0 ' + W + ' ' + H).attr('role', 'img').attr('aria-label', cfg.aria);
+    var measure = function (txt) {
+      var t = svg.append('text').attr('class', 'tkx').text(txt);
+      var w = t.node().getComputedTextLength();
+      t.remove();
+      return w;
+    };
+    var y = d3.scaleLinear().domain(cfg.domain);
+    var yt = y.ticks(cfg.ticks || 5);
+    var ml = d3.max(yt, function (t) { return measure(fmtN(t, cfg.axisDec)); }) + 10;
+    var mr = 12, mt = 14, mb = 26;
+    var ends = [];
+    cfg.series.forEach(function (s, i) {
+      for (var k = cfg.rows.length - 1; k >= 0; k--) {
+        if (cfg.rows[k][s.key] != null) { if (k === cfg.rows.length - 1) ends.push({ s: s, i: i, v: cfg.rows[k][s.key] }); break; }
+      }
+    });
+    if (cfg.endLabels && ends.length) {
+      mr = d3.max(ends, function (e) { return measure(e.s.name + ' ' + fmtN(e.v, cfg.dec)); }) + 10;
+    }
+    y.range([H - mb, mt]);
+    var labels = cfg.rows.map(function (r) { return r.label; });
+    var x, every = 1, xticks;
+    var MON = ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+    if (cfg.time) {
+      var dts = cfg.rows.map(function (r) { return new Date(r.date + 'T00:00:00Z'); });
+      var xs = d3.scaleUtc().domain([dts[0], dts[dts.length - 1]]).range([ml + 4, W - mr - 4]);
+      var byL = {};
+      cfg.rows.forEach(function (r, i) { byL[r.label] = dts[i]; });
+      x = function (l) { return xs(byL[l]); };
+      var stepM = W < 440 ? 3 : 2;
+      xticks = xs.ticks(d3.utcMonth.every(stepM)).map(function (dt) { return { px: xs(dt), text: MON[dt.getUTCMonth()] + ' ' + String(dt.getUTCFullYear()).slice(2) }; });
+    } else {
+      x = d3.scalePoint().domain(labels).range([ml, W - mr]).padding(0.15);
+      var lw = d3.max(labels, measure) + 12;
+      every = Math.max(1, Math.ceil(lw / x.step()));
+      xticks = labels.filter(function (_, i) { return i % every === 0; }).map(function (l) { return { px: x(l), text: l }; });
+    }
+
+    var g = svg.append('g');
+    g.selectAll('.gl').data(yt).enter().append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y).attr('y2', y).style('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
+    g.selectAll('.yt').data(yt).enter().append('text').attr('class', 'tkx').attr('x', ml - 8).attr('y', y).attr('dy', '0.32em').attr('text-anchor', 'end').text(function (t) { return fmtN(t, cfg.axisDec); });
+    g.selectAll('.xt').data(xticks).enter().append('text').attr('class', 'tkx').attr('x', function (t) { return t.px; }).attr('y', H - 6).attr('text-anchor', 'middle').text(function (t) { return t.text; });
+    g.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', H - mb).attr('y2', H - mb).style('stroke', 'var(--cds-chart-axis)').attr('stroke-width', 1);
+
+    if (cfg.zero && cfg.domain[0] < 0 && cfg.domain[1] > 0) {
+      g.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1);
+    }
+
+    /* Ausstehender Schlussmonat */
+    var lastRow = cfg.rows[cfg.rows.length - 1];
+    var pending = cfg.series.every(function (s) { return lastRow[s.key] == null; });
+    if (pending && cfg.pendingText) {
+      g.append('line').attr('x1', x(lastRow.label)).attr('x2', x(lastRow.label)).attr('y1', mt).attr('y2', H - mb).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '3 3').attr('stroke-width', 1);
+      g.append('text').attr('class', 'tkx').attr('x', x(lastRow.label) - 6).attr('y', mt + 10).attr('text-anchor', 'end').text(cfg.pendingText);
+    }
+
+    if (cfg.area && cfg.series.length === 1) {
+      var gid = 'ar' + Math.random().toString(36).slice(2, 8);
+      var defs = svg.append('defs');
+      var lg = defs.append('linearGradient').attr('id', gid).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+      [[0, .26], [.25, .16], [.5, .08], [.75, .03], [1, 0]].forEach(function (st) {
+        lg.append('stop').attr('offset', st[0]).attr('style', 'stop-color:' + cfg.series[0].color + ';stop-opacity:' + st[1]);
+      });
+      var area = d3.area().defined(function (r) { return r[cfg.series[0].key] != null; }).x(function (r) { return x(r.label); }).y0(H - mb).y1(function (r) { return y(r[cfg.series[0].key]); });
+      g.append('path').datum(cfg.rows).attr('d', area).attr('fill', 'url(#' + gid + ')');
+    }
+
+    if (cfg.band) {
+      var bnd = d3.area().curve(d3.curveStepAfter).defined(function (r) { return r[cfg.band.lo] != null && r[cfg.band.hi] != null; }).x(function (r) { return x(r.label); }).y0(function (r) { return y(r[cfg.band.lo]); }).y1(function (r) { return y(r[cfg.band.hi]); });
+      g.append('path').datum(cfg.rows).attr('d', bnd).attr('fill', cfg.band.color).attr('fill-opacity', 0.16);
+    }
+
+    cfg.series.forEach(function (s) {
+      var ln = d3.line().defined(function (r) { return r[s.key] != null; }).x(function (r) { return x(r.label); }).y(function (r) { return y(r[s.key]); });
+      if (s.step) ln.curve(d3.curveStepAfter);
+      g.append('path').datum(cfg.rows).attr('d', ln).attr('fill', 'none').style('stroke', s.color).attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+      if (cfg.dots) {
+        g.selectAll(null).data(cfg.rows.filter(function (r) { return r[s.key] != null && (!cfg.dotFilter || cfg.dotFilter(r)); })).enter().append('circle').attr('cx', function (r) { return x(r.label); }).attr('cy', function (r) { return y(r[s.key]); }).attr('r', 2.5).style('fill', s.color);
+      }
+    });
+
+    /* Direkte Beschriftung am Linienende */
+    if (cfg.endLabels && ends.length) {
+      var pos = ends.map(function (e) { return { e: e, y: y(e.v) }; }).sort(function (a, b) { return a.y - b.y; });
+      for (var i = 1; i < pos.length; i++) { if (pos[i].y - pos[i - 1].y < 12) pos[i].y = pos[i - 1].y + 12; }
+      pos.forEach(function (p) {
+        g.append('text').attr('class', 'endl').attr('x', W - mr + 6).attr('y', p.y).attr('dy', '0.32em').style('fill', p.e.s.color).text(p.e.s.name + ' ' + fmtN(p.e.v, cfg.dec));
+      });
+    }
+
+    /* Tooltip */
+    var tt = d3.select(host).append('div').attr('class', 'tt').style('display', 'none');
+    var rule = g.append('line').attr('y1', mt).attr('y2', H - mb).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1).style('display', 'none');
+    var dots = cfg.series.map(function (s) { return g.append('circle').attr('r', 4).style('fill', s.color).style('stroke', 'var(--color-panel)').attr('stroke-width', 1.5).style('display', 'none'); });
+    var move = function (ev) {
+      var r = svg.node().getBoundingClientRect();
+      var px = (ev.clientX - r.left) * (W / r.width);
+      var idx = 0, best = Infinity;
+      labels.forEach(function (l, k) { var dd = Math.abs(x(l) - px); if (dd < best) { best = dd; idx = k; } });
+      var row = cfg.rows[idx], cx = x(row.label);
+      rule.attr('x1', cx).attr('x2', cx).style('display', null);
+      dots.forEach(function (d, k) {
+        var v = row[cfg.series[k].key];
+        if (v == null) d.style('display', 'none'); else d.attr('cx', cx).attr('cy', y(v)).style('display', null);
+      });
+      var node = tt.node();
+      node.innerHTML = '';
+      var t1 = el('div', 't1', node);
+      t1.textContent = (row.tip || row.label) + (cfg.extra ? cfg.extra(row) : '');
+      cfg.series.forEach(function (s) {
+        var tr = el('div', 'tr', node);
+        var nm = el('span', '', tr);
+        var sw = el('i', 'sw', nm);
+        sw.style.background = s.color;
+        nm.appendChild(document.createTextNode(' ' + s.name));
+        var v = row[s.key];
+        el('b', '', tr).textContent = v == null ? (cfg.nullText || '–') : fmtN(v, cfg.dec) + (cfg.unit || '');
+      });
+      tt.style('display', null);
+      var tw = node.offsetWidth, hw = host.clientWidth;
+      var left = (cx / W) * hw + 12;
+      if (left + tw > hw) left = (cx / W) * hw - tw - 12;
+      tt.style('left', Math.max(0, left) + 'px').style('top', '8px');
+    };
+    var leave = function () { tt.style('display', 'none'); rule.style('display', 'none'); dots.forEach(function (d) { d.style('display', 'none'); }); };
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - ml - mr).attr('height', H - mt - mb).attr('fill', 'transparent')
+      .on('pointermove', move).on('pointerdown', move).on('pointerleave', leave);
+  }
+
+  function fail(host) {
+    host.classList.remove('dash-skeleton');
+    host.innerHTML = '';
+    var f = el('div', 'fail', host);
+    el('i', '', f);
+    f.appendChild(document.createTextNode('Failed to load'));
+  }
+
+  function render() {
+    /* Meldungen oben */
+    var news = D('news');
+    var nl = document.getElementById('news-list');
+    if (news) {
+      nl.innerHTML = '';
+      news.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); }).slice(0, 3).forEach(function (n) {
+        var art = el('article', 'ni', nl);
+        var m = el('div', 'nm', art);
+        mk(el('span', '', m), 'news', 'date_label', n.id, n.date_label);
+        el('span', '', m).textContent = '·';
+        mk(el('span', '', m), 'news', 'tag', n.id, n.tag);
+        var a = el('a', 'nh', art);
+        mk(a, 'news', 'headline', n.id, n.headline);
+        if (safe(n.url)) { a.setAttribute('href', n.url); a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); }
+        mk(el('p', 'ns', art), 'news', 'summary', n.id, n.summary);
+        var sp = el('div', 'nm', art);
+        sp.appendChild(document.createTextNode('Quelle: '));
+        mk(el('span', '', sp), 'news', 'source', n.id, n.source);
+      });
+    }
+
+    /* Texte aus notes */
+    var notes = D('notes');
+    if (notes) {
+      ['takeaway', 'period'].forEach(function (id) {
+        var row = notes.filter(function (r) { return r.id === id; })[0];
+        var target = document.querySelector('#dg [data-source="notes"][data-where="id=' + id + '"]');
+        if (row && target) target.textContent = row.text;
+      });
+      var meta = D('meta');
+      if (meta && meta.updated) {
+        var ud = new Date(meta.updated);
+        var MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+        document.getElementById('titel').textContent = 'Deutschland Dashboard – ' + MONTHS[ud.getMonth()] + ' ' + ud.getFullYear();
+        document.title = document.getElementById('titel').textContent;
+        document.getElementById('periode').textContent = 'Daten zuletzt abgerufen: ' + ud.toLocaleString('de-DE', { dateStyle: 'medium', timeStyle: 'short' }) + ' Uhr';
+      }
+      var nlist = document.getElementById('notes-list');
+      nlist.innerHTML = '';
+      notes.filter(function (r) { return r.id.indexOf('n_') === 0; }).forEach(function (r) {
+        mk(el('p', '', nlist), 'notes', 'text', r.id, r.text);
+      });
+    }
+
+    /* Kennzahlen */
+    var kpi = dash.data('kpi');
+    if (kpi.status === 'ok') {
+      kpi.data.forEach(function (r) {
+        var c = document.querySelector('#dg .kd[data-source="kpi"][data-field="delta"][data-where="id=' + r.id + '"]');
+        if (c) { c.textContent = r.delta; c.classList.remove('bad', 'ok'); if (r.tone === 'bad' || r.tone === 'ok') c.classList.add(r.tone); }
+        var v = document.querySelector('#dg .kv[data-source="kpi"][data-where="id=' + r.id + '"]');
+        if (v) v.textContent = r.display;
+        var p = document.querySelector('#dg .kd[data-source="kpi"][data-field="period"][data-where="id=' + r.id + '"]');
+        if (p) p.textContent = r.period;
+      });
+    }
+
+    /* Diagramm-Texte */
+    var cm = D('chart_meta');
+    if (cm) {
+      cm.forEach(function (r) {
+        root.querySelectorAll('[data-source="chart_meta"][data-where="id=' + r.id + '"]').forEach(function (n) {
+          var f = n.getAttribute('data-field');
+          n.textContent = r[f];
+          if (f === 'source' && safe(r.url)) n.setAttribute('href', r.url);
+        });
+      });
+    }
+
+    /* Monatsreihen */
+    var mm = D('macro_monthly');
+    var hostI = document.getElementById('ch-inflation'), hostU = document.getElementById('ch-unemployment'), hostF = document.getElementById('ch-ifo'), hostR = document.getElementById('ch-rates'), hostZE = document.getElementById('ch-zew_exp');
+    if (mm) {
+      var rows = mm.map(function (r) {
+        return { label: r.label, inflation: num(r.inflation), unemployment: num(r.unemployment), ifo: num(r.ifo), ecb_mro: num(r.ecb_mro), fed_eff: num(r.fed_eff), zew_exp: num(r.zew_exp), inflation_status: r.inflation_status || '' };
+      });
+      [hostI, hostU, hostF, hostR, hostZE].forEach(function (h) { h.classList.remove('dash-skeleton'); });
+      var pend = rows[rows.length - 1].label + ': ausstehend';
+      drawLine(hostI, { rows: rows, series: [{ key: 'inflation', name: 'Inflationsrate', color: dash.colors[0] }], domain: [1, 4], ticks: 6, dec: 1, axisDec: 1, unit: ' %', area: true, dots: true, pendingText: pend, nullText: 'ausstehend', aria: 'Inflationsrate Deutschland, Monatswerte', extra: function (r) { return r.inflation_status ? ' (' + r.inflation_status + ')' : ''; } });
+      drawLine(hostU, { rows: rows, series: [{ key: 'unemployment', name: 'Arbeitslosenquote', color: dash.colors[1] }], domain: [5.5, 7], ticks: 4, dec: 1, axisDec: 1, unit: ' %', area: true, dots: true, pendingText: pend, nullText: 'ausstehend', aria: 'Arbeitslosenquote Deutschland, Monatswerte' });
+      drawLine(hostF, { rows: rows, series: [{ key: 'ifo', name: 'ifo Geschäftsklima', color: dash.colors[2] }], domain: [82, 92], ticks: 5, dec: 1, axisDec: 0, unit: '', area: true, dots: true, pendingText: pend, nullText: 'ausstehend', aria: 'ifo Geschäftsklimaindex, Monatswerte' });
+      drawLine(hostZE, { rows: rows, series: [{ key: 'zew_exp', name: 'ZEW Erwartungen', color: dash.colors[3] }], domain: [-30, 70], ticks: 5, dec: 1, axisDec: 0, unit: '', area: false, dots: true, zero: true, pendingText: pend, nullText: 'ausstehend', aria: 'ZEW Konjunkturerwartungen, Monatswerte' });
+      drawLine(hostR, { rows: rows, series: [{ key: 'ecb_mro', name: 'EZB Hauptrefinanzierungssatz', color: dash.colors[0], step: true }, { key: 'fed_eff', name: 'Fed Funds Rate', color: dash.colors[3] }], domain: [1.5, 4.5], ticks: 4, dec: 2, axisDec: 1, unit: ' %', endLabels: false, nullText: 'noch offen', dots: false, aria: 'Leitzinsen: EZB-Hauptrefinanzierungssatz und effektive Federal Funds Rate' });
+      var lgr = document.getElementById('lg-rates');
+      lgr.innerHTML = '';
+      [['EZB Hauptrefinanzierungssatz', dash.colors[0]], ['Fed Funds Rate (Monatsdurchschnitt)', dash.colors[3]]].forEach(function (p) {
+        var s = el('span', '', lgr); var sw = el('i', 'sw', s); sw.style.background = p[1]; s.appendChild(document.createTextNode(p[0]));
+      });
+    } else {
+      var st = dash.data('macro_monthly').status;
+      [hostI, hostU, hostF, hostR, hostZE].forEach(function (h) { if (st === 'loading') h.classList.add('dash-skeleton'); else fail(h); });
+    }
+
+    /* Sonntagsfrage */
+    var polls = D('polls');
+    var hostP = document.getElementById('ch-polls');
+    if (polls) {
+      hostP.classList.remove('dash-skeleton');
+      var prow = polls.map(function (r) {
+        var o = { label: r.label };
+        PARTIES.forEach(function (p) { o[p[0]] = num(r[p[0]]); });
+        return o;
+      });
+      var lgp = document.getElementById('lg-polls');
+      lgp.innerHTML = '';
+      PARTIES.forEach(function (p) { var s = el('span', '', lgp); var sw = el('i', 'sw', s); sw.style.background = p[2]; s.appendChild(document.createTextNode(p[1])); });
+      drawLine(hostP, { rows: prow, series: PARTIES.map(function (p) { return { key: p[0], name: p[1], color: p[2] }; }), domain: [0, 40], ticks: 5, h: 340, dec: 0, axisDec: 0, unit: ' %', endLabels: true, dots: false, nullText: '–', aria: 'Sonntagsfrage Infratest dimap, Monatswerte der letzten zwei Jahre' });
+    } else {
+      var sp = dash.data('polls').status;
+      if (sp === 'loading') hostP.classList.add('dash-skeleton'); else fail(hostP);
+    }
+
+
+    /* Renditen Bundesanleihen (Tageswerte) */
+    var bd = D('bund_daily');
+    var hostB1 = document.getElementById('ch-bund10');
+    if (bd) {
+      var brow = bd.map(function (r) { return { date: String(r.date), label: r.label, tip: r.tip, kind: r.kind, y10: num(r.y10) }; });
+      hostB1.classList.remove('dash-skeleton');
+      drawLine(hostB1, { rows: brow, series: [{ key: 'y10', name: '10-jährige Bundesanleihe', color: dash.colors[4] }], domain: [2.4, 3.8], ticks: 7, dec: 2, axisDec: 1, unit: ' %', area: true, time: true, dots: false, aria: 'Rendite 10-jährige Bundesanleihe, Tageswerte, ein Jahr' });
+    } else {
+      var sb = dash.data('bund_daily').status;
+      if (sb === 'loading') hostB1.classList.add('dash-skeleton'); else fail(hostB1);
+    }
+
+    /* Kennzahlenkarten */
+    var kf = D('key_figures');
+    var grid = document.getElementById('kf-grid');
+    Array.prototype.slice.call(grid.querySelectorAll('.kfcard')).forEach(function (n) { n.remove(); });
+    if (kf) {
+      var order = ['Staatsfinanzen', 'Konjunktur', 'Preise', 'Arbeitsmarkt', 'Geldpolitik', 'Ausland'];
+      order.forEach(function (gname) {
+        var items = kf.filter(function (r) { return r.group === gname; });
+        if (!items.length) return;
+        var card = el('article', 'card kfcard', grid);
+        el('h3', '', card).textContent = gname;
+        var ul = el('ul', 'kf', card);
+        items.forEach(function (r) {
+          var li = el('li', '', ul);
+          mk(el('span', 'a', li), 'key_figures', 'label', r.id, r.label);
+          mk(el('span', 'b', li), 'key_figures', 'display', r.id, r.display);
+          var c = el('span', 'c', li);
+          mk(el('span', '', c), 'key_figures', 'period', r.id, r.period);
+          c.appendChild(document.createTextNode(' · '));
+          var a = el('a', '', c);
+          mk(a, 'key_figures', 'source', r.id, r.source);
+          if (safe(r.url)) { a.setAttribute('href', r.url); a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); }
+        });
+      });
+    }
+
+    /* Quellenliste */
+    var src = D('sources');
+    var sl = document.getElementById('src-list');
+    if (src) {
+      sl.innerHTML = '';
+      src.forEach(function (r) {
+        var li = el('li', '', sl);
+        mk(el('span', 'b', li), 'sources', 'indicator', r.id, r.indicator);
+        var a = el('a', '', li);
+        mk(a, 'sources', 'publisher', r.id, r.publisher);
+        if (safe(r.url)) { a.setAttribute('href', r.url); a.setAttribute('target', '_blank'); a.setAttribute('rel', 'noopener noreferrer'); }
+        var l1 = el('span', '', li);
+        l1.appendChild(document.createTextNode('Rhythmus: '));
+        mk(el('span', '', l1), 'sources', 'rhythm', r.id, r.rhythm);
+        var l2 = el('span', '', li);
+        l2.appendChild(document.createTextNode('Nächste Veröffentlichung: '));
+        mk(el('span', '', l2), 'sources', 'next', r.id, r.next);
+      });
+    }
+  }
+
+  function num(v) { return v == null || v === '' ? null : Number(v); }
+
+  dash.onData(render);
+})();
+</script>
+</body>
+</html>
