@@ -16,9 +16,8 @@ from common import http_get, load, save
 # (Anzeigename, URL, Quellengewicht) – Primärquellen zählen mehr
 FEEDS = [
     ("Bundesregierung", "https://www.bundesregierung.de/service/rss/breg-de/1151242/feed.xml", 3),
-    ("Destatis", "https://www.destatis.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Pressemitteilungen.xml", 3),
+    ("Destatis", "https://www.destatis.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Aktuell.xml", 3),
     ("tagesschau", "https://www.tagesschau.de/wirtschaft/index~rss2.xml", 2),
-    ("Deutschlandfunk", "https://www.deutschlandfunk.de/wirtschaft-100.rss", 1),
     ("ZEIT ONLINE", "https://newsfeed.zeit.de/wirtschaft/index", 1),
 ]
 MAX_AGE_DAYS = 7
