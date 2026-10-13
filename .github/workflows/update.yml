@@ -1,1 +1,71 @@
+name: Daten aktualisieren und veröffentlichen
+
+on:
+  schedule:
+    - cron: "30 5 * * *"   # täglich 05:30 UTC (07:30 Uhr MESZ / 06:30 MEZ)
+  workflow_dispatch:        # manuell über den Reiter "Actions" startbar
+  push:
+    branches: [main]
+    paths-ignore: ["*.json", "README.md"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: dashboard
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: pdftotext installieren
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      - name: Tests
+        run: python -m unittest test_updaters
+      - name: Daten abrufen
+        id: upd
+        continue-on-error: true
+        run: python update_all.py
+      - name: Änderungen committen
+        run: |
+          git config user.name "dashboard-bot"
+          git config user.email "dashboard-bot@users.noreply.github.com"
+          git add "*.json"
+          if git diff --cached --quiet; then echo "Keine Änderungen"; else git commit -m "Daten aktualisiert"; git push; fi
+      - name: Fehlschlag melden
+        if: steps.upd.outcome == 'failure'
+        run: |
+          echo "Mindestens eine Datenquelle ist fehlgeschlagen (Details im Schritt 'Daten abrufen')."
+          exit 1
+
+  deploy:
+    needs: update
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Nur die Seite veröffentlichen
+        run: |
+          mkdir _site
+          cp index.html *.json _site/
+          touch _site/.nojekyll
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
 
