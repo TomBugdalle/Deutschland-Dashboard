@@ -15,10 +15,8 @@ from common import http_get, load, save
 
 # (Anzeigename, URL, Quellengewicht) – Primärquellen zählen mehr
 FEEDS = [
-    ("Bundesregierung", "https://www.bundesregierung.de/service/rss/breg-de/1151242/feed.xml", 3),
     ("Destatis", "https://www.destatis.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Aktuell.xml", 3),
     ("tagesschau", "https://www.tagesschau.de/wirtschaft/index~rss2.xml", 2),
-    ("ZEIT ONLINE", "https://newsfeed.zeit.de/wirtschaft/index", 1),
 ]
 MAX_AGE_DAYS = 7
 N = 3
@@ -26,7 +24,7 @@ N = 3
 POLITIK = ["bundesregierung", "regierung", "koalition", "bundestag", "bundesrat", "kabinett", "gesetz", "minister",
            "kanzler", "merz", "klingbeil", "reiche", "haushalt", "steuer", "schuldenbremse", "sondervermögen",
            "förder", "subvention", "eu-kommission", "bundesbank", "ezb", "zentralbank", "tarif", "mindestlohn",
-           "bürgergeld", "rente", "zölle", "zoll", "handelsabkommen", "sanktion", "abgabe", "entlastung"]
+           "bürgergeld", "rente", "zölle", "zoll", "handelsabkommen", "sanktion", "abgabe", "entlastung", "iwf"]
 WIRTSCHAFT = ["wirtschaft", "konjunktur", "wachstum", "inflation", "preise", "zins", "arbeitsmarkt", "arbeitslos",
               "industrie", "unternehmen", "export", "import", "energie", "strom", "gas", "netzentgelt", "co2",
               "investition", "schulden", "defizit", "bip", "prognose", "ifo", "zew", "rezession", "haushalt", "steuer",
