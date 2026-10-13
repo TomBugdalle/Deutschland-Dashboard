@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 
 import common  # noqa: E402
 import update_bund  # noqa: E402
+import update_news  # noqa: E402
 import update_polls  # noqa: E402
 import update_rates  # noqa: E402
 
@@ -126,6 +127,38 @@ class TestPolls(Base):
         self.assertEqual((last["month"], last["published"], last["afd"], last["cdu_csu"]), ("2026-11", "2026-11-05", 28, 24))
         self.assertIsNone(last["fdp"])
         self.assertEqual(rows[0]["month"], "2025-11")
+
+
+RSS = """<?xml version="1.0"?><rss version="2.0"><channel>
+<item><title>Koalition einigt sich auf Haushalt: Schuldenbremse bleibt</title><link>https://example.org/a</link>
+<pubDate>Mon, 12 Oct 2026 09:00:00 +0200</pubDate><description>&lt;p&gt;Die Regierung plant Steuer und Investitionen.&lt;/p&gt;</description></item>
+<item><title>Promi heiratet am Wochenende</title><link>https://example.org/b</link><pubDate>Mon, 12 Oct 2026 10:00:00 +0200</pubDate><description>Klatsch</description></item>
+<item><title>Alte Meldung: Bundestag beschließt Haushalt</title><link>https://example.org/c</link><pubDate>Mon, 01 Oct 2026 10:00:00 +0200</pubDate><description>Haushalt Steuer Bundestag</description></item>
+</channel></rss>"""
+ATOM = """<feed xmlns="http://www.w3.org/2005/Atom"><entry><title>EZB senkt Zins, Inflation sinkt</title>
+<link href="https://example.org/d"/><updated>2026-10-13T06:00:00Z</updated><summary>Die Bundesbank erwartet Wachstum.</summary></entry></feed>"""
+
+
+class TestNews(Base):
+    def test_pick_and_run(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 10, 13, 10, 0, tzinfo=timezone.utc)
+        feeds = {"Bundesregierung": RSS, "Destatis": ATOM}
+        orig = update_news.FEEDS
+        update_news.FEEDS = [("Bundesregierung", "x", 3), ("Destatis", "y", 3)]
+        try:
+            update_news.run(now=now, feeds_xml=feeds)
+        finally:
+            update_news.FEEDS = orig
+        rows = json.loads((common.DATA / "news.json").read_text())
+        urls = [r["url"] for r in rows]
+        self.assertIn("https://example.org/a", urls)
+        self.assertIn("https://example.org/d", urls)
+        self.assertNotIn("https://example.org/b", urls)  # kein Wirtschaftsbezug
+        self.assertNotIn("https://example.org/c", urls)  # älter als 7 Tage
+        self.assertEqual(rows[0]["url"], "https://example.org/d")  # neueste zuerst
+        self.assertEqual(rows[1]["date_label"], "12.10.2026")
+        self.assertNotIn("<p>", rows[1]["summary"])
 
 
 if __name__ == "__main__":

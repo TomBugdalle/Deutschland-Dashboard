@@ -4,12 +4,13 @@ import sys
 import traceback
 
 import update_bund
+import update_news
 import update_polls
 import update_rates
 from common import now_iso, save
 
 failed = []
-for name, mod in [("bund", update_bund), ("rates", update_rates), ("polls", update_polls)]:
+for name, mod in [("bund", update_bund), ("rates", update_rates), ("polls", update_polls), ("news", update_news)]:
     try:
         mod.run()
     except Exception:  # noqa: BLE001
@@ -17,6 +18,6 @@ for name, mod in [("bund", update_bund), ("rates", update_rates), ("polls", upda
         print(f"::error::Update '{name}' fehlgeschlagen")
         traceback.print_exc()
 
-if len(failed) < 3:
+if len(failed) < 4:
     save("meta", {"updated": now_iso()})
 sys.exit(1 if failed else 0)
